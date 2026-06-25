@@ -1,0 +1,313 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  Admin
+  Seller
+  Buyer
+  Driver
+}
+
+enum OrderStatus {
+  SedangDikemas
+  MenungguPengirim
+  SedangDikirim
+  PesananSelesai
+  Dikembalikan
+}
+
+enum DeliveryMethod {
+  Instant
+  NextDay
+  Regular
+}
+
+enum TransactionType {
+  TopUp
+  Payment
+  Refund
+}
+
+enum DiscountType {
+  Percentage
+  Fixed
+}
+
+enum DeliveryJobStatus {
+  Available
+  Taken
+  Delivered
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  roles     Role[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store           Store?
+  wallet          Wallet?
+  addresses       Address[]
+  cart            Cart?
+  orders          Order[]           @relation("BuyerOrders")
+  applicationReviews ApplicationReview[]
+  productReviews   ProductReview[]
+  deliveries      DeliveryJob[]
+  driverEarnings  DriverEarning[]
+}
+
+model Store {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  phone       String?
+  email       String?
+  city        String?
+  addressLine String?
+  logoUrl     String?
+  sellerId    Int      @unique
+  seller      User     @relation(fields: [sellerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+  orders   Order[]
+
+  @@index([sellerId])
+}
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String?
+  price          Float
+  stock          Int
+  imageUrl       String?
+  images         String?  // JSON array of image URLs
+  isDealOfTheDay Boolean  @default(false)
+  storeId        Int
+  store          Store    @relation(fields: [storeId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  reviews    ProductReview[]
+
+  @@index([storeId])
+  @@index([name])
+  @@index([isDealOfTheDay])
+}
+
+model ProductReview {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId      Int?
+  user        User?    @relation(fields: [userId], references: [id])
+  reviewerName String
+  rating      Int      // 1-5
+  comment     String
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  buyerId   Int      @unique
+  buyer     User     @relation(fields: [buyerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items CartItem[]
+
+  @@index([buyerId])
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+
+  @@index([cartId])
+  @@index([productId])
+}
+
+model Address {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  label       String
+  recipient   String
+  phone       String
+  addressLine String
+  city        String
+  postalCode  String
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders Order[]
+
+  @@index([userId])
+}
+
+model Order {
+  id             Int           @id @default(autoincrement())
+  buyerId        Int
+  buyer          User          @relation("BuyerOrders", fields: [buyerId], references: [id])
+  storeId        Int
+  store          Store         @relation(fields: [storeId], references: [id])
+  addressId      Int
+  address        Address       @relation(fields: [addressId], references: [id])
+  deliveryMethod DeliveryMethod
+  totalAmount    Float
+  deliveryFee    Float
+  discountAmount Float         @default(0)
+  taxAmount      Float
+  finalTotal     Float
+  status         OrderStatus   @default(SedangDikemas)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  items         OrderItem[]
+  statusHistory OrderStatusHistory[]
+  deliveryJob   DeliveryJob?
+  driverEarning DriverEarning?
+
+  @@index([buyerId])
+  @@index([storeId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model OrderStatusHistory {
+  id        Int        @id @default(autoincrement())
+  orderId   Int
+  order     Order      @relation(fields: [orderId], references: [id])
+  status    OrderStatus
+  notes     String?
+  createdAt DateTime   @default(now())
+
+  @@index([orderId])
+}
+
+model Wallet {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  balance   Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  walletId    Int
+  wallet      Wallet          @relation(fields: [walletId], references: [id])
+  amount      Float
+  type        TransactionType
+  description String?
+  createdAt   DateTime        @default(now())
+
+  @@index([walletId])
+}
+
+model Voucher {
+  id               Int          @id @default(autoincrement())
+  code             String       @unique
+  discountType     DiscountType
+  discountValue    Float
+  minOrder         Float?
+  expiryDate       DateTime
+  usageLimit       Int
+  usedCount        Int          @default(0)
+  applicableToDeals Boolean     @default(false)
+  createdBy        Int
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([code])
+}
+
+model Promo {
+  id            Int          @id @default(autoincrement())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Float
+  minOrder      Float?
+  expiryDate    DateTime
+  createdBy     Int
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([code])
+}
+
+model DeliveryJob {
+  id          Int               @id @default(autoincrement())
+  orderId     Int               @unique
+  order       Order             @relation(fields: [orderId], references: [id])
+  driverId    Int?
+  driver      User?             @relation(fields: [driverId], references: [id])
+  status      DeliveryJobStatus @default(Available)
+  takenAt     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([driverId])
+  @@index([status])
+}
+
+model DriverEarning {
+  id        Int      @id @default(autoincrement())
+  driverId  Int
+  driver    User     @relation(fields: [driverId], references: [id])
+  orderId   Int      @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  amount    Float
+  createdAt DateTime @default(now())
+
+  @@index([driverId])
+}
+
+model ApplicationReview {
+  id           Int      @id @default(autoincrement())
+  reviewerName String
+  rating       Int
+  comment      String
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
