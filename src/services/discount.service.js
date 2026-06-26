@@ -98,3 +98,25 @@ export async function getPromoById(id) {
   if (!promo) throw new NotFoundError("Promo not found");
   return promo;
 }
+
+export async function getActiveDiscounts() {
+  const now = new Date();
+
+  const [vouchers, promos] = await Promise.all([
+    prisma.voucher.findMany({
+      where: { expiryDate: { gte: now } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.promo.findMany({
+      where: { expiryDate: { gte: now } },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const activeVouchers = vouchers.filter((v) => v.usedCount < v.usageLimit);
+
+  return {
+    vouchers: activeVouchers,
+    promos,
+  };
+}

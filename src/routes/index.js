@@ -36,6 +36,7 @@ router.get("/reviews", publicController.getReviews);
 router.post("/reviews", optionalAuth, validate(schemas.review), publicController.createReview);
 router.get("/deals", publicController.getDealsOfTheDay);
 router.get("/site-config", siteConfigController.getSiteConfig);
+router.get("/active-discounts", publicController.getActiveDiscounts);
 
 // General endpoints (PRD Section 5.7)
 router.get(

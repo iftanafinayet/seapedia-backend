@@ -1,6 +1,7 @@
 import * as productService from "../services/product.service.js";
 import * as reviewService from "../services/review.service.js";
 import * as storeService from "../services/store.service.js";
+import * as discountService from "../services/discount.service.js";
 
 export async function getProducts(req, res, next) {
   try {
@@ -93,6 +94,35 @@ export async function getStoreById(req, res, next) {
   try {
     const store = await storeService.getStoreById(parseInt(req.params.id));
     res.json({ success: true, data: store });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getActiveDiscounts(req, res, next) {
+  try {
+    const discounts = await discountService.getActiveDiscounts();
+    res.json({
+      success: true,
+      data: {
+        vouchers: discounts.vouchers.map((v) => ({
+          id: v.id,
+          code: v.code,
+          discountType: v.discountType,
+          discountValue: v.discountValue,
+          minOrder: v.minOrder,
+          type: "voucher",
+        })),
+        promos: discounts.promos.map((p) => ({
+          id: p.id,
+          code: p.code,
+          discountType: p.discountType,
+          discountValue: p.discountValue,
+          minOrder: p.minOrder,
+          type: "promo",
+        })),
+      },
+    });
   } catch (error) {
     next(error);
   }

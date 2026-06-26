@@ -11,5 +11,6 @@ router.get("/products/:id", publicController.getProductById);
 router.get("/stores/:id", publicController.getStoreById);
 router.post("/reviews", optionalAuth, validate(schemas.review), publicController.createReview);
 router.get("/reviews", publicController.getReviews);
+router.get("/active-discounts", publicController.getActiveDiscounts);
 
 export default router;
