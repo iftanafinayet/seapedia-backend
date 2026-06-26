@@ -32,4 +32,8 @@ router.delete("/promos/:id", adminController.deletePromo);
 router.get("/products", adminController.getProducts);
 router.put("/products/:id/deal", adminController.toggleDealProduct);
 
+// Site Config
+router.get("/site-config", adminController.getSiteConfig);
+router.put("/site-config", adminController.updateSiteConfig);
+
 export default router;

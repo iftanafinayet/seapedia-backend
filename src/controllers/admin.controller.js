@@ -1,6 +1,7 @@
 import * as adminService from "../services/admin.service.js";
 import * as discountService from "../services/discount.service.js";
 import * as productService from "../services/product.service.js";
+import * as siteConfigService from "../services/siteConfig.service.js";
 
 export async function getDashboard(req, res, next) {
   try {
@@ -144,4 +145,19 @@ export async function toggleDealProduct(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+// Site Config
+export async function getSiteConfig(req, res, next) {
+  try {
+    const config = await siteConfigService.getSiteConfig();
+    res.json({ success: true, data: config });
+  } catch (error) { next(error); }
+}
+
+export async function updateSiteConfig(req, res, next) {
+  try {
+    const config = await siteConfigService.updateSiteConfig(req.body);
+    res.json({ success: true, data: config });
+  } catch (error) { next(error); }
 }

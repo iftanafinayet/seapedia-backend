@@ -311,3 +311,12 @@ model ApplicationReview {
 
   @@index([userId])
 }
+
+model SiteConfig {
+  id            Int      @id @default(autoincrement())
+  heroTitle     String   @default("Belanja Mudah di SEAPEDIA")
+  heroSubtitle  String   @default("Temukan perlengkapan terbaik dari seluruh dunia dalam satu platform.")
+  heroCtaText   String   @default("Mulai Belanja")
+  heroCtaLink   String   @default("/products")
+  updatedAt     DateTime @updatedAt
+}

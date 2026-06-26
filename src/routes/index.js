@@ -13,6 +13,7 @@ import { optionalAuth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { schemas } from "../utils/validation.js";
 import * as generalController from "../controllers/general.controller.js";
+import * as siteConfigController from "../controllers/admin.controller.js";
 
 const router = Router();
 
@@ -34,6 +35,7 @@ router.get("/stores/:id", publicController.getStoreById);
 router.get("/reviews", publicController.getReviews);
 router.post("/reviews", optionalAuth, validate(schemas.review), publicController.createReview);
 router.get("/deals", publicController.getDealsOfTheDay);
+router.get("/site-config", siteConfigController.getSiteConfig);
 
 // General endpoints (PRD Section 5.7)
 router.get(
