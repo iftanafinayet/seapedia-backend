@@ -1,0 +1,749 @@
+{
+  "info": {
+    "name": "SEAPEDIA API",
+    "description": "E-commerce multi-role marketplace API — Buyer, Seller, Driver, Admin.\n\nBase URL: http://localhost:5000\n\nProtected endpoints require:\n- Authorization: Bearer <token>\n- X-Active-Role: Buyer|Seller|Driver|Admin\n\nDemo accounts (after seed):\n- admin / admin123\n- seller1 / User1234\n- buyer1 / User1234 (balance 5M)\n- buyer2 / User1234 (balance 3M)\n- driver1 / User1234",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "activeRole", "value": "Buyer" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@test.com\",\n  \"password\": \"Password123\",\n  \"roles\": [\"Buyer\"]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["var json = pm.response.json();", "if (json.data && json.data.token) {", "  pm.collectionVariables.set('token', json.data.token);", "}"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"identifier\": \"buyer1\",\n  \"password\": \"User1234\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/profile", "host": ["{{baseUrl}}"], "path": ["api", "auth", "profile"] }
+          }
+        },
+        {
+          "name": "Set Active Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"activeRole\": \"Buyer\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/active-role", "host": ["{{baseUrl}}"], "path": ["api", "auth", "active-role"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products?page=1&limit=20&search=", "host": ["{{baseUrl}}"], "path": ["api", "products"], "query": [
+              { "key": "page", "value": "1" }, { "key": "limit", "value": "20" }, { "key": "search", "value": "" }
+            ] }
+          }
+        },
+        {
+          "name": "Top Rated Products",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/top-rated", "host": ["{{baseUrl}}"], "path": ["api", "products", "top-rated"] }
+          }
+        },
+        {
+          "name": "Get Product Detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/1", "host": ["{{baseUrl}}"], "path": ["api", "products", "1"] }
+          }
+        },
+        {
+          "name": "Get Product Reviews",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/products/1/reviews", "host": ["{{baseUrl}}"], "path": ["api", "products", "1", "reviews"] }
+          }
+        },
+        {
+          "name": "Submit Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}", "disabled": true }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"reviewerName\": \"Andi\",\n  \"rating\": 4,\n  \"comment\": \"Great product!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/products/1/reviews", "host": ["{{baseUrl}}"], "path": ["api", "products", "1", "reviews"] }
+          }
+        },
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/reviews", "host": ["{{baseUrl}}"], "path": ["api", "reviews"] }
+          }
+        },
+        {
+          "name": "Submit Review",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"reviewerName\": \"Budi\",\n  \"rating\": 5,\n  \"comment\": \"Amazing app!\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/reviews", "host": ["{{baseUrl}}"], "path": ["api", "reviews"] }
+          }
+        },
+        {
+          "name": "Get Store",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/stores/1", "host": ["{{baseUrl}}"], "path": ["api", "stores", "1"] }
+          }
+        },
+        {
+          "name": "Deals of the Day",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/deals", "host": ["{{baseUrl}}"], "path": ["api", "deals"] }
+          }
+        },
+        {
+          "name": "Active Discounts",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/active-discounts", "host": ["{{baseUrl}}"], "path": ["api", "active-discounts"] }
+          }
+        },
+        {
+          "name": "Site Config",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/site-config", "host": ["{{baseUrl}}"], "path": ["api", "site-config"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buyer",
+      "item": [
+        {
+          "name": "Get Wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/wallet", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "wallet"] }
+          }
+        },
+        {
+          "name": "Top Up Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 100000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/wallet/topup", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "wallet", "topup"] }
+          }
+        },
+        {
+          "name": "Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/wallet/transactions", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "wallet", "transactions"] }
+          }
+        },
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/addresses", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "addresses"] }
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"label\": \"Rumah\",\n  \"recipient\": \"Budi\",\n  \"phone\": \"081234567890\",\n  \"addressLine\": \"Jl. Merdeka No.1\",\n  \"city\": \"Jakarta\",\n  \"postalCode\": \"12345\",\n  \"isPrimary\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/addresses", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "addresses"] }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"label\": \"Kantor\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/addresses/1", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "addresses", "1"] }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/addresses/2", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "addresses", "2"] }
+          }
+        },
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart"] }
+          }
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items"] }
+          }
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 5\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items/1", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items", "1"] }
+          }
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/cart/items/1", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "cart", "items", "1"] }
+          }
+        },
+        {
+          "name": "Checkout Preview",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"addressId\": 1,\n  \"deliveryMethod\": \"Regular\",\n  \"discountCode\": \"FLAT50K\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/checkout/preview", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "checkout", "preview"] }
+          }
+        },
+        {
+          "name": "Execute Checkout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"addressId\": 1,\n  \"deliveryMethod\": \"Regular\",\n  \"discountCode\": \"FLAT50K\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/buyer/checkout", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "checkout"] }
+          }
+        },
+        {
+          "name": "My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders"] }
+          }
+        },
+        {
+          "name": "Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/orders/1", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "orders", "1"] }
+          }
+        },
+        {
+          "name": "Spending Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/buyer/report", "host": ["{{baseUrl}}"], "path": ["api", "buyer", "report"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seller",
+      "item": [
+        {
+          "name": "Get My Store",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/seller/store", "host": ["{{baseUrl}}"], "path": ["api", "seller", "store"] }
+          }
+        },
+        {
+          "name": "Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Toko Jaya\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/seller/store", "host": ["{{baseUrl}}"], "path": ["api", "seller", "store"] }
+          }
+        },
+        {
+          "name": "Update Store",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Toko Jaya Update\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/seller/store", "host": ["{{baseUrl}}"], "path": ["api", "seller", "store"] }
+          }
+        },
+        {
+          "name": "List My Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/seller/products", "host": ["{{baseUrl}}"], "path": ["api", "seller", "products"] }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ikan Segar\",\n  \"description\": \"Ikan laut segar ditangkap hari ini\",\n  \"price\": 50000,\n  \"stock\": 100\n}" },
+            "url": { "raw": "{{baseUrl}}/api/seller/products", "host": ["{{baseUrl}}"], "path": ["api", "seller", "products"] }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"price\": 45000\n}" },
+            "url": { "raw": "{{baseUrl}}/api/seller/products/1", "host": ["{{baseUrl}}"], "path": ["api", "seller", "products", "1"] }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/seller/products/100", "host": ["{{baseUrl}}"], "path": ["api", "seller", "products", "100"] }
+          }
+        },
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders"] }
+          }
+        },
+        {
+          "name": "Process Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/seller/orders/1/process", "host": ["{{baseUrl}}"], "path": ["api", "seller", "orders", "1", "process"] }
+          }
+        },
+        {
+          "name": "Income Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Seller" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/seller/report", "host": ["{{baseUrl}}"], "path": ["api", "seller", "report"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver",
+      "item": [
+        {
+          "name": "Available Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Driver" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/driver/jobs", "host": ["{{baseUrl}}"], "path": ["api", "driver", "jobs"] }
+          }
+        },
+        {
+          "name": "Job Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Driver" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/driver/jobs/1", "host": ["{{baseUrl}}"], "path": ["api", "driver", "jobs", "1"] }
+          }
+        },
+        {
+          "name": "Take Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Driver" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/driver/jobs/1/take", "host": ["{{baseUrl}}"], "path": ["api", "driver", "jobs", "1", "take"] }
+          }
+        },
+        {
+          "name": "Complete Job",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Driver" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/driver/jobs/1/complete", "host": ["{{baseUrl}}"], "path": ["api", "driver", "jobs", "1", "complete"] }
+          }
+        },
+        {
+          "name": "My Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Driver" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/driver/my-jobs", "host": ["{{baseUrl}}"], "path": ["api", "driver", "my-jobs"] }
+          }
+        },
+        {
+          "name": "Earnings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Driver" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/driver/earnings", "host": ["{{baseUrl}}"], "path": ["api", "driver", "earnings"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "admin", "dashboard"] }
+          }
+        },
+        {
+          "name": "Process Overdue",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/process-overdue", "host": ["{{baseUrl}}"], "path": ["api", "admin", "process-overdue"] }
+          }
+        },
+        {
+          "name": "Simulate Next Day",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/simulate-next-day", "host": ["{{baseUrl}}"], "path": ["api", "admin", "simulate-next-day"] }
+          }
+        },
+        {
+          "name": "List Vouchers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/vouchers", "host": ["{{baseUrl}}"], "path": ["api", "admin", "vouchers"] }
+          }
+        },
+        {
+          "name": "Create Voucher",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"HEMAT50\",\n  \"discountType\": \"Percentage\",\n  \"discountValue\": 10,\n  \"minOrder\": 500000,\n  \"expiryDate\": \"2030-12-31T23:59:59.000Z\",\n  \"usageLimit\": 100\n}" },
+            "url": { "raw": "{{baseUrl}}/api/admin/vouchers", "host": ["{{baseUrl}}"], "path": ["api", "admin", "vouchers"] }
+          }
+        },
+        {
+          "name": "Get Voucher Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/vouchers/1", "host": ["{{baseUrl}}"], "path": ["api", "admin", "vouchers", "1"] }
+          }
+        },
+        {
+          "name": "Update Voucher",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"discountValue\": 15\n}" },
+            "url": { "raw": "{{baseUrl}}/api/admin/vouchers/1", "host": ["{{baseUrl}}"], "path": ["api", "admin", "vouchers", "1"] }
+          }
+        },
+        {
+          "name": "Delete Voucher",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/vouchers/1", "host": ["{{baseUrl}}"], "path": ["api", "admin", "vouchers", "1"] }
+          }
+        },
+        {
+          "name": "List Promos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/promos", "host": ["{{baseUrl}}"], "path": ["api", "admin", "promos"] }
+          }
+        },
+        {
+          "name": "Create Promo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"GRANDLAUNCH\",\n  \"discountType\": \"Fixed\",\n  \"discountValue\": 25000,\n  \"minOrder\": 1000000,\n  \"expiryDate\": \"2030-12-31T23:59:59.000Z\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/admin/promos", "host": ["{{baseUrl}}"], "path": ["api", "admin", "promos"] }
+          }
+        },
+        {
+          "name": "List All Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/products", "host": ["{{baseUrl}}"], "path": ["api", "admin", "products"] }
+          }
+        },
+        {
+          "name": "Toggle Deal of the Day",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/products/1/deal", "host": ["{{baseUrl}}"], "path": ["api", "admin", "products", "1", "deal"] }
+          }
+        },
+        {
+          "name": "Get Site Config",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/admin/site-config", "host": ["{{baseUrl}}"], "path": ["api", "admin", "site-config"] }
+          }
+        },
+        {
+          "name": "Update Site Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Admin" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"heroTitle\": \"Welcome to SEAPEDIA\",\n  \"heroSubtitle\": \"Your marketplace\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/admin/site-config", "host": ["{{baseUrl}}"], "path": ["api", "admin", "site-config"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "General",
+      "item": [
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "X-Active-Role", "value": "Buyer" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/orders/1", "host": ["{{baseUrl}}"], "path": ["api", "orders", "1"] }
+          }
+        },
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "image", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/api/upload", "host": ["{{baseUrl}}"], "path": ["api", "upload"] }
+          }
+        }
+      ]
+    }
+  ]
+}
