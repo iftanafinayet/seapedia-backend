@@ -35,3 +35,12 @@ export async function setActiveRole(req, res, next) {
     next(error);
   }
 }
+
+export async function getFinancialSummary(req, res, next) {
+  try {
+    const summary = await authService.getFinancialSummary(req.user.userId);
+    res.json({ success: true, data: summary });
+  } catch (error) {
+    next(error);
+  }
+}

@@ -17,6 +17,10 @@ export async function getAdminDashboard() {
     deliveryJobCount,
     onDeliveryOrders,
     refundedOrders,
+    buyerCount,
+    sellerCount,
+    driverCount,
+    adminCount,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.store.count(),
@@ -41,6 +45,10 @@ export async function getAdminDashboard() {
       orderBy: { updatedAt: "desc" },
       take: 10,
     }),
+    prisma.user.count({ where: { roles: { has: "Buyer" } } }),
+    prisma.user.count({ where: { roles: { has: "Seller" } } }),
+    prisma.user.count({ where: { roles: { has: "Driver" } } }),
+    prisma.user.count({ where: { roles: { has: "Admin" } } }),
   ]);
 
   const now = new Date();
@@ -58,6 +66,12 @@ export async function getAdminDashboard() {
     promoCount,
     deliveryJobCount,
     totalOnDelivery: onDeliveryOrders.length,
+    roleCounts: {
+      buyer: buyerCount,
+      seller: sellerCount,
+      driver: driverCount,
+      admin: adminCount,
+    },
     overdueCount: overdue.length,
     overdueOrders: overdue.map((o) => ({
       id: o.id,

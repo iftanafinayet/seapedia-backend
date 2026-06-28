@@ -13,5 +13,6 @@ router.post("/login", loginLimiter, validate(schemas.login), authController.logi
 router.post("/logout", authenticate, generalController.logout);
 router.get("/profile", authenticate, authController.getProfile);
 router.post("/active-role", authenticate, validate(schemas.activeRole), authController.setActiveRole);
+router.get("/financial-summary", authenticate, authController.getFinancialSummary);
 
 export default router;
