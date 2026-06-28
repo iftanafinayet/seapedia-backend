@@ -21,8 +21,10 @@ export async function authenticate(req, res, next) {
     }
 
     req.user = {
-      ...decoded,
+      userId: decoded.userId,
+      username: decoded.username,
       roles: user.roles,
+      activeRole: decoded.activeRole || null,
     };
 
     next();
@@ -50,8 +52,10 @@ export async function optionalAuth(req, res, next) {
 
     if (user) {
       req.user = {
-        ...decoded,
+        userId: decoded.userId,
+        username: decoded.username,
         roles: user.roles,
+        activeRole: decoded.activeRole || null,
       };
     }
   } catch {

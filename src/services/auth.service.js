@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import prisma from "../config/prisma.js";
-import { generateAuthToken } from "../utils/token.js";
+import { generateAuthToken, generateRoleToken } from "../utils/token.js";
 import { BadRequestError, ConflictError, UnauthorizedError } from "../utils/errors.js";
 
 export async function register({ username, email, password, roles }) {
@@ -92,7 +92,6 @@ export async function getProfile(userId) {
 export async function setActiveRole(userId, activeRole) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { roles: true },
   });
 
   if (!user) {
@@ -103,5 +102,16 @@ export async function setActiveRole(userId, activeRole) {
     throw new BadRequestError(`You do not have the role '${activeRole}'`);
   }
 
-  return { activeRole };
+  const token = generateRoleToken(user, activeRole);
+
+  return {
+    activeRole,
+    token,
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.roles,
+    },
+  };
 }

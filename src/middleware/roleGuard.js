@@ -2,21 +2,21 @@ import { ForbiddenError, BadRequestError } from "../utils/errors.js";
 
 export function authorize(...allowedRoles) {
   return (req, res, next) => {
-    const activeRole = req.headers["x-active-role"];
+    const activeRole = req.user?.activeRole;
 
     if (!activeRole) {
-      throw new BadRequestError("Active role header (X-Active-Role) is required");
+      throw new BadRequestError("Token tidak memiliki role yang aktif. Silakan pilih role terlebih dahulu.");
     }
 
     if (!allowedRoles.includes(activeRole)) {
       throw new ForbiddenError(
-        `Role '${activeRole}' is not permitted to access this resource`
+        `Role '${activeRole}' tidak diizinkan mengakses resource ini`
       );
     }
 
     if (!req.user.roles.includes(activeRole)) {
       throw new ForbiddenError(
-        `You do not have the '${activeRole}' role. Your roles: [${req.user.roles.join(", ")}]`
+        `Kamu tidak memiliki role '${activeRole}'. Role kamu: [${req.user.roles.join(", ")}]`
       );
     }
 
