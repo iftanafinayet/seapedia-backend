@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import path from 'path';
+import fs from 'fs';
 import { uploadImage } from '../utils/cloudinary.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -14,8 +14,10 @@ router.post('/', authenticate, upload.single('image'), async (req, res, next) =>
     }
 
     const result = await uploadImage(req.file.path, 'seapedia');
+    fs.unlink(req.file.path, () => {});
     res.json({ success: true, data: result });
   } catch (error) {
+    if (req.file) fs.unlink(req.file.path, () => {});
     next(error);
   }
 });
