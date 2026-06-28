@@ -48,6 +48,7 @@ export const schemas = {
     description: Joi.string().max(5000).allow("", null),
     price: Joi.number().positive().required(),
     stock: Joi.number().integer().min(0).required(),
+    category: Joi.string().valid("Beauty","Fashion","Electronic","Grocery","Home","Sport","General").default("General"),
     imageUrl: Joi.string().uri().allow("", null),
     images: Joi.alternatives().try(
       Joi.array().items(Joi.string().uri()),

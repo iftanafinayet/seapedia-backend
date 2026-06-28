@@ -14,6 +14,16 @@ enum Role {
   Driver
 }
 
+enum ProductCategory {
+  Beauty
+  Fashion
+  Electronic
+  Grocery
+  Home
+  Sport
+  General
+}
+
 enum OrderStatus {
   SedangDikemas
   MenungguPengirim
@@ -86,18 +96,19 @@ model Store {
 }
 
 model Product {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   name           String
   description    String?
   price          Float
   stock          Int
+  category       ProductCategory @default(General)
   imageUrl       String?
-  images         String?  // JSON array of image URLs
-  isDealOfTheDay Boolean  @default(false)
+  images         String?
+  isDealOfTheDay Boolean   @default(false)
   storeId        Int
-  store          Store    @relation(fields: [storeId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  store          Store     @relation(fields: [storeId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   cartItems  CartItem[]
   orderItems OrderItem[]
@@ -106,6 +117,7 @@ model Product {
   @@index([storeId])
   @@index([name])
   @@index([isDealOfTheDay])
+  @@index([category])
 }
 
 model ProductReview {

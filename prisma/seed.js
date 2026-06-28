@@ -91,34 +91,58 @@ async function main() {
 
   // Stores
   const store1 = await prisma.store.create({
-    data: {
-      name: "Toko Elektronik Jaya",
-      sellerId: seller1.id,
-    },
+    data: { name: "Toko Elektronik Jaya", sellerId: seller1.id },
   });
-
   const store2 = await prisma.store.create({
-    data: {
-      name: "Fashion Hub",
-      sellerId: seller2.id,
-    },
+    data: { name: "Fashion Hub Surabaya", sellerId: seller2.id },
   });
 
-  // Products - Store 1 (Elektronik: 5) + Store 2 (Fashion: 5)
+  // Products by Category (5 per category, 35 total)
   const seedProducts = [
-    // Elektronik (store1): Smartphone, Laptop, Audio, Wearable, Accessories
-    { name: "Smartphone X Pro", desc: "Latest flagship smartphone with advanced camera 108MP, OLED 120Hz", price: 8500000, stock: 50, storeId: store1.id, category: "SMARTPHONE", ratings: [5,4,5,5,4] },
-    { name: "Laptop Ultrabook 14", desc: "Lightweight laptop 1.2kg, 16GB RAM, 512GB SSD", price: 12500000, stock: 30, storeId: store1.id, category: "LAPTOP", ratings: [5,5,4,4,5] },
-    { name: "Wireless Earbuds Pro", desc: "Active noise-cancelling, 30hr battery, IPX5 waterproof", price: 750000, stock: 100, storeId: store1.id, category: "AUDIO", ratings: [4,5,4,4,5] },
-    { name: "Smartwatch Active 2", desc: "AMOLED display, heart rate, SpO2, GPS, 14-day battery", price: 2200000, stock: 45, storeId: store1.id, category: "WEARABLE", ratings: [5,5,5,4,4] },
-    { name: "USB-C Hub 7-in-1", desc: "HDMI 4K, SD card, USB 3.0, PD charging passthrough", price: 350000, stock: 150, storeId: store1.id, category: "ACCESSORIES", ratings: [4,4,5,4,3] },
+    // ── BEAUTY ──
+    { name: "Serum Wajah Vitamin C", desc: "Brightening serum dengan 20% Vitamin C, hyaluronic acid, dan niacinamide", price: 89000, stock: 120, storeId: store1.id, category: "Beauty", ratings: [5,5,4,5,4] },
+    { name: "Lipstik Matte Velvet", desc: "Long-lasting matte lipstik, 12 jam tahan lama, 6 pilihan warna", price: 45000, stock: 200, storeId: store1.id, category: "Beauty", ratings: [4,5,4,4,5] },
+    { name: "Masker Wajah Aloe Vera", desc: "Sheet mask dengan ekstrak aloe vera, melembabkan dan menenangkan kulit", price: 15000, stock: 300, storeId: store1.id, category: "Beauty", ratings: [4,4,5,4,4] },
+    { name: "Parfum Eau de Toilette", desc: "Aroma floral-fresh yang elegan, 50ml, cocok untuk daily wear", price: 150000, stock: 80, storeId: store1.id, category: "Beauty", ratings: [5,5,5,4,5] },
+    { name: "Sunscreen SPF 50 PA+++", desc: "Tabir surya ringan, non-greasy, melindungi dari UVA/UVB", price: 65000, stock: 150, storeId: store1.id, category: "Beauty", ratings: [5,4,5,5,4] },
 
-    // Fashion (store2): Clothing, Footwear, Bag, Accessories, Outerwear
-    { name: "Jaket Denim Premium", desc: "High-quality raw denim jacket, classic fit", price: 450000, stock: 80, storeId: store2.id, category: "CLOTHING", ratings: [5,4,4,5,4] },
-    { name: "Sepatu Sneakers Casual", desc: "Comfortable casual sneakers, memory foam insole", price: 350000, stock: 60, storeId: store2.id, category: "FOOTWEAR", ratings: [4,5,5,4,5] },
-    { name: "Tas Ransel Fashion", desc: "Stylish backpack with laptop compartment, water-repellent", price: 250000, stock: 40, storeId: store2.id, category: "BAG", ratings: [5,4,4,4,5] },
-    { name: "Kacamata UV Premium", desc: "Polarized UV400 lenses, lightweight titanium frame", price: 180000, stock: 90, storeId: store2.id, category: "ACCESSORIES", ratings: [4,5,5,4,4] },
-    { name: "Hoodie Graphic Limited", desc: "Limited edition graphic hoodie, 100% cotton fleece", price: 320000, stock: 55, storeId: store2.id, category: "OUTERWEAR", ratings: [5,5,4,5,5] },
+    // ── FASHION ──
+    { name: "Jaket Denim Premium", desc: "High-quality raw denim jacket, classic fit, unisex", price: 450000, stock: 60, storeId: store2.id, category: "Fashion", ratings: [5,4,4,5,4] },
+    { name: "Kemeja Flanel Kotak", desc: "Kemeja flanel katun premium, nyaman dipakai sehari-hari", price: 120000, stock: 90, storeId: store2.id, category: "Fashion", ratings: [4,5,5,4,5] },
+    { name: "Celana Chino Slim Fit", desc: "Celana chino stretch fabric, slim fit, cocok casual & semi-formal", price: 180000, stock: 75, storeId: store2.id, category: "Fashion", ratings: [5,5,4,4,4] },
+    { name: "Kaos Polos Premium", desc: "Kaos katun combed 30s, nyaman, tidak mudah melar, 10 warna", price: 55000, stock: 250, storeId: store2.id, category: "Fashion", ratings: [4,4,5,4,5] },
+    { name: "Dress Batik Modern", desc: "Dress batik kombinasi modern, cocok untuk acara formal & casual", price: 280000, stock: 40, storeId: store2.id, category: "Fashion", ratings: [5,5,5,5,4] },
+
+    // ── ELECTRONIC ──
+    { name: "Smartphone Android 12", desc: "Layar AMOLED 6.5\", 8GB RAM, 128GB ROM, kamera 50MP", price: 3200000, stock: 45, storeId: store1.id, category: "Electronic", ratings: [5,4,5,5,4] },
+    { name: "Laptop Ultrabook 14\"", desc: "Intel i5 Gen 13, 16GB RAM, 512GB SSD, 1.2kg", price: 8500000, stock: 25, storeId: store1.id, category: "Electronic", ratings: [5,5,4,4,5] },
+    { name: "Wireless Earbuds ANC", desc: "Active noise cancelling, 30 jam battery, IPX5 waterproof", price: 450000, stock: 100, storeId: store1.id, category: "Electronic", ratings: [4,5,4,4,5] },
+    { name: "Smartwatch Health Pro", desc: "AMOLED, heart rate, SpO2, GPS, sleep tracking, 14 hari battery", price: 1500000, stock: 60, storeId: store1.id, category: "Electronic", ratings: [5,5,5,4,4] },
+    { name: "Power Bank 20000mAh", desc: "Fast charging 65W PD, 3 port output, LCD display", price: 250000, stock: 200, storeId: store1.id, category: "Electronic", ratings: [4,4,5,4,3] },
+
+    // ── GROCERY ──
+    { name: "Beras Premium 5kg", desc: "Beras organik kualitas premium, pulen dan wangi", price: 75000, stock: 200, storeId: store2.id, category: "Grocery", ratings: [5,5,4,5,5] },
+    { name: "Minyak Goreng 2L", desc: "Minyak goreng sawit premium, mengandung vitamin A", price: 35000, stock: 300, storeId: store2.id, category: "Grocery", ratings: [4,4,5,4,4] },
+    { name: "Kopi Arabika Gayo 250g", desc: "Kopi single origin Aceh Gayo, medium roast, bubuk halus", price: 65000, stock: 150, storeId: store2.id, category: "Grocery", ratings: [5,5,5,4,5] },
+    { name: "Susu UHT Full Cream 1L", desc: "Susu sapi segar UHT, tinggi kalsium, kemasan 1 liter", price: 22000, stock: 250, storeId: store2.id, category: "Grocery", ratings: [4,4,4,5,4] },
+    { name: "Madu Murni 500ml", desc: "Madu hutan asli, tanpa tambahan gula, kaya antioksidan", price: 85000, stock: 100, storeId: store2.id, category: "Grocery", ratings: [5,5,5,5,5] },
+
+    // ── HOME ──
+    { name: "Set Sprei Katun 3pcs", desc: "Sprei katun premium 180x200cm + 2 sarung bantal, adem & lembut", price: 180000, stock: 80, storeId: store1.id, category: "Home", ratings: [5,4,5,5,4] },
+    { name: "Rak Sepatu Minimalis", desc: "Rak sepatu 4 tingkat, material plastik ABS kuat, muat 16 pasang", price: 95000, stock: 120, storeId: store1.id, category: "Home", ratings: [4,5,4,4,5] },
+    { name: "Lampu Meja LED", desc: "Lampu belajar LED eye-care, 3 mode warna, adjustable brightness", price: 125000, stock: 90, storeId: store1.id, category: "Home", ratings: [5,5,4,5,5] },
+    { name: "Botol Minum Stainless 750ml", desc: "Insulated stainless steel, tahan panas & dingin 12 jam", price: 75000, stock: 180, storeId: store1.id, category: "Home", ratings: [4,4,5,4,4] },
+    { name: "Set Alat Masak Silikon", desc: "Spatula, sendok, sutil silikon food-grade, tahan panas 250°C", price: 55000, stock: 140, storeId: store1.id, category: "Home", ratings: [5,4,5,4,5] },
+
+    // ── SPORT ──
+    { name: "Sepatu Lari Carbon Plate", desc: "Sepatu lari dengan carbon plate, ringan 220g, responsif", price: 1200000, stock: 50, storeId: store2.id, category: "Sport", ratings: [5,5,5,4,5] },
+    { name: "Yoga Mat Premium 6mm", desc: "Matras yoga anti-slip, 6mm tebal, 183x61cm, bonus carrying strap", price: 150000, stock: 100, storeId: store2.id, category: "Sport", ratings: [4,5,4,4,5] },
+    { name: "Dumbbell Set 20kg", desc: "Set dumbbell adjustable 2x10kg, neoprene coating, anti slip", price: 380000, stock: 40, storeId: store2.id, category: "Sport", ratings: [5,4,4,5,4] },
+    { name: "Jersey Sepeda Premium", desc: "Cycling jersey breathable, UV protection, 3 back pockets", price: 250000, stock: 65, storeId: store2.id, category: "Sport", ratings: [5,5,4,4,5] },
+    { name: "Tali Skipping Digital", desc: "Jump rope dengan counter digital, bearing halus, adjustable length", price: 85000, stock: 200, storeId: store2.id, category: "Sport", ratings: [4,4,5,4,4] },
+
+    // ── GENERAL ── (bonus)
+    { name: "Paket Hadiah Mystery Box", desc: "Mystery box berisi 3-5 item random berbagai kategori, surprise!", price: 100000, stock: 50, storeId: store1.id, category: "General", ratings: [4,5,5,4,5] },
   ];
 
   const createdProducts = [];
@@ -130,6 +154,7 @@ async function main() {
         price: p.price,
         stock: p.stock,
         storeId: p.storeId,
+        category: p.category,
       },
     });
     createdProducts.push(product);

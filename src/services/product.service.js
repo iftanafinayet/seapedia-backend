@@ -1,10 +1,14 @@
 import prisma from "../config/prisma.js";
 import { NotFoundError, ForbiddenError } from "../utils/errors.js";
 
-export async function getPublicProducts(page = 1, limit = 20, search, sort) {
-  const where = search
-    ? { name: { contains: search, mode: "insensitive" } }
-    : {};
+export async function getPublicProducts(page = 1, limit = 20, search, sort, category) {
+  const where = {};
+  if (search) {
+    where.name = { contains: search, mode: "insensitive" };
+  }
+  if (category) {
+    where.category = category;
+  }
 
   let orderBy = { createdAt: "desc" };
   if (sort === "popular") orderBy = { createdAt: "desc" };

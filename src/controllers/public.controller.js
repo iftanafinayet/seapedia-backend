@@ -9,7 +9,8 @@ export async function getProducts(req, res, next) {
     const limit = parseInt(req.query.limit) || 20;
     const search = req.query.search;
     const sort = req.query.sort;
-    const result = await productService.getPublicProducts(page, limit, search, sort);
+    const category = req.query.category;
+    const result = await productService.getPublicProducts(page, limit, search, sort, category);
     res.json({
       success: true,
       data: result.data,
