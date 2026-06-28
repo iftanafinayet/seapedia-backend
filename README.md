@@ -141,8 +141,7 @@ After running `npm run db:seed`:
 | GET | `/api/admin/promos/:id` |
 
 Every protected endpoint requires:
-- `Authorization: Bearer <token>`
-- `X-Active-Role: Buyer|Seller|Driver|Admin`
+- `Authorization: Bearer <role-scoped token>` (token obtained via `/api/auth/active-role` after login)
 
 ## Business Rules
 
@@ -214,12 +213,13 @@ prisma/
 | Layer | Implementation |
 |-------|---------------|
 | Passwords | bcrypt (cost factor 12) |
-| Tokens | JWT with 7-day expiry, strong secret from env |
+| Tokens | JWT with role-based expiry: Buyer 4h, Driver 2d, Seller 7d, Admin 7d. General token: 15m |
+| Active Role | Embedded in JWT `activeRole` claim — no `X-Active-Role` header needed |
 | SQL Injection | Prisma ORM (parameterized queries) |
 | XSS | Output sanitization (HTML entity encoding) on user-content fields |
 | Input Validation | Joi schemas on all endpoints |
 | Rate Limiting | Login: 5 req/min; General: 200 req/min |
-| RBAC | Role check via `X-Active-Role` header, verified against JWT token roles |
+| RBAC | Role verified from JWT token via `authorize()` middleware |
 
 ## Demo Flow (End-to-End)
 
