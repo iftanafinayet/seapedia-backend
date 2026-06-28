@@ -118,11 +118,12 @@ export async function getSellerReport(sellerId, dateFrom, dateTo) {
   if (dateFrom || dateTo) {
     where.createdAt = {};
     if (dateFrom) where.createdAt.gte = new Date(dateFrom);
-    if (dateTo) where.createdAt.lte = new Date(dateTo);
+    if (dateTo) where.createdAt.lte = new Date(dateTo + 'T23:59:59.999Z');
   }
 
   const orders = await prisma.order.findMany({
     where,
+    include: { items: { include: { product: { select: { id: true, name: true, price: true } } } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -132,10 +133,32 @@ export async function getSellerReport(sellerId, dateFrom, dateTo) {
     0
   );
 
+  // Product sales aggregation
+  const productSales = {};
+  completedOrders.forEach(o => {
+    o.items.forEach(item => {
+      const key = item.productId;
+      if (!productSales[key]) {
+        productSales[key] = {
+          productId: key,
+          name: item.product?.name || `Product #${key}`,
+          totalSold: 0,
+          totalRevenue: 0,
+        };
+      }
+      productSales[key].totalSold += item.quantity;
+      productSales[key].totalRevenue += item.quantity * item.price;
+    });
+  });
+
+  const avgOrderValue = completedOrders.length > 0 ? totalIncome / completedOrders.length : 0;
+
   return {
     totalOrders: orders.length,
     completedOrders: completedOrders.length,
     totalIncome: parseFloat(totalIncome.toFixed(2)),
+    avgOrderValue: parseFloat(avgOrderValue.toFixed(2)),
+    productSales: Object.values(productSales).sort((a, b) => b.totalRevenue - a.totalRevenue),
     orders,
   };
 }

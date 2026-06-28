@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as sellerController from "../controllers/seller.controller.js";
+import * as generalController from "../controllers/general.controller.js";
 import { authenticate } from "../middleware/auth.js";
 import { authorize } from "../middleware/roleGuard.js";
 import { validate } from "../middleware/validate.js";
@@ -20,6 +21,7 @@ router.put("/products/:id", validate(schemas.productUpdate), sellerController.up
 router.delete("/products/:id", sellerController.deleteProduct);
 
 router.get("/orders", sellerController.getOrders);
+router.get("/orders/:id", generalController.getOrderById);
 router.put("/orders/:id/process", sellerController.processOrder);
 
 router.get("/report", sellerController.getReport);
