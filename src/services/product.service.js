@@ -1,5 +1,7 @@
+import { v2 as cloudinary } from 'cloudinary';
 import prisma from "../config/prisma.js";
 import { NotFoundError, ForbiddenError } from "../utils/errors.js";
+import { extractPublicId } from "../utils/cloudinary.js";
 
 export async function getPublicProducts(page = 1, limit = 20, search, sort, category) {
   const where = {};
@@ -56,15 +58,40 @@ export async function getSellerProducts(sellerId) {
   });
 }
 
-export async function createProduct({ name, description, price, stock, sellerId }) {
+export async function createProduct({ name, description, price, stock, imageUrl, images, sellerId }) {
   const store = await prisma.store.findUnique({ where: { sellerId } });
   if (!store) {
     throw new NotFoundError("You don't have a store yet");
   }
 
   return prisma.product.create({
-    data: { name, description, price, stock, storeId: store.id },
+    data: { name, description, price, stock, imageUrl, images, storeId: store.id },
   });
+}
+
+function collectImageIds(product) {
+  const ids = [];
+  if (product.imageUrl) {
+    const id = extractPublicId(product.imageUrl);
+    if (id) ids.push(id);
+  }
+  if (product.images) {
+    try {
+      const urls = JSON.parse(product.images);
+      if (Array.isArray(urls)) {
+        for (const url of urls) {
+          const id = extractPublicId(url);
+          if (id) ids.push(id);
+        }
+      }
+    } catch {}
+  }
+  return ids;
+}
+
+async function deleteCloudinaryImages(ids) {
+  if (ids.length === 0) return;
+  await Promise.all(ids.map(id => cloudinary.uploader.destroy(id).catch(() => {})));
 }
 
 export async function updateProduct({ productId, sellerId, data }) {
@@ -78,10 +105,17 @@ export async function updateProduct({ productId, sellerId, data }) {
     throw new ForbiddenError("You can only update your own products");
   }
 
-  return prisma.product.update({
+  const updated = await prisma.product.update({
     where: { id: productId },
     data,
   });
+
+  const oldIds = collectImageIds(product);
+  const newIds = collectImageIds(updated);
+  const removed = oldIds.filter(id => !newIds.includes(id));
+  deleteCloudinaryImages(removed);
+
+  return updated;
 }
 
 export async function deleteProduct({ productId, sellerId }) {
@@ -95,7 +129,9 @@ export async function deleteProduct({ productId, sellerId }) {
     throw new ForbiddenError("You can only delete your own products");
   }
 
+  const ids = collectImageIds(product);
   await prisma.product.delete({ where: { id: productId } });
+  deleteCloudinaryImages(ids);
 }
 
 export async function getProductsByStore(storeId) {

@@ -6,11 +6,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+export function extractPublicId(url) {
+  if (!url) return null;
+  const parts = url.split('/');
+  const versionIndex = parts.findIndex(p => p.match(/^v\d+$/));
+  if (versionIndex === -1) return null;
+  return parts.slice(versionIndex + 1).join('/').replace(/\.[^.]+$/, '');
+}
+
 export async function uploadImage(filePath, folder = 'seapedia') {
   const result = await cloudinary.uploader.upload(filePath, {
     folder,
     transformation: [
-      { width: 800, height: 800, crop: 'limit', quality: 'auto', fetch_format: 'auto' },
+      { width: 1200, height: 1200, crop: 'limit', quality: 'auto', fetch_format: 'auto' },
     ],
     format: 'webp',
   });
