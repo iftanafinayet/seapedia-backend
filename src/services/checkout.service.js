@@ -270,6 +270,7 @@ export async function getCheckoutPreview({ buyerId, addressId, deliveryMethod, d
       productId: item.productId,
       name: item.product.name,
       price: item.product.price,
+      imageUrl: item.product.imageUrl,
       quantity: item.quantity,
       subtotal: item.product.price * item.quantity,
     })),

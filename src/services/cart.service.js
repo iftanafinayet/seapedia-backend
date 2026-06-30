@@ -14,6 +14,7 @@ export async function getCart(buyerId) {
               price: true,
               stock: true,
               storeId: true,
+              imageUrl: true,
             },
           },
         },

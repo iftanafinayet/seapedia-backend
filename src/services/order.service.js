@@ -6,7 +6,7 @@ export async function getBuyerOrders(buyerId) {
   return prisma.order.findMany({
     where: { buyerId },
     include: {
-      items: { include: { product: { select: { id: true, name: true } } } },
+      items: { include: { product: { select: { id: true, name: true, imageUrl: true } } } },
       store: { select: { id: true, name: true } },
       statusHistory: { orderBy: { createdAt: "desc" } },
       deliveryJob: true,
@@ -19,7 +19,7 @@ export async function getBuyerOrderById({ userId, orderId }) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
-      items: { include: { product: { select: { id: true, name: true, price: true } } } },
+      items: { include: { product: { select: { id: true, name: true, price: true, imageUrl: true } } } },
       store: { select: { id: true, name: true } },
       statusHistory: { orderBy: { createdAt: "asc" } },
       deliveryJob: { include: { driver: { select: { id: true, username: true } } } },
