@@ -12,7 +12,13 @@ import swaggerDoc from "./config/swagger.js";
 const app = express();
 
 app.use(cors({
-  origin: env.FRONTEND_URL,
+  origin: (origin, cb) => {
+    if (!origin || env.FRONTEND_URLS.includes(origin)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
