@@ -1,16 +1,26 @@
 import jwt from "jsonwebtoken";
 import { jwtConfig } from "../config/jwt.js";
+import crypto from "node:crypto";
 
-export function generateToken(payload, customExpiry) {
-  return jwt.sign(payload, jwtConfig.secret, { expiresIn: customExpiry || jwtConfig.expiresIn });
+export function generateAccessToken(payload) {
+  return jwt.sign(payload, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
 }
 
-export function verifyToken(token) {
+export function verifyAccessToken(token) {
   return jwt.verify(token, jwtConfig.secret);
 }
 
+export function generateRefreshToken(payload) {
+  const expiresIn = jwtConfig.refreshExpiry[payload.activeRole || payload.roles?.[0]] || "7d";
+  return jwt.sign(payload, jwtConfig.refreshSecret, { expiresIn });
+}
+
+export function verifyRefreshToken(token) {
+  return jwt.verify(token, jwtConfig.refreshSecret);
+}
+
 export function generateAuthToken(user) {
-  return generateToken({
+  return generateAccessToken({
     userId: user.id,
     username: user.username,
     email: user.email,
@@ -19,14 +29,14 @@ export function generateAuthToken(user) {
 }
 
 export function generateRoleToken(user, activeRole) {
-  const expiresIn = jwtConfig.roleExpiry[activeRole] || "7d";
-  return generateToken(
-    {
-      userId: user.id,
-      username: user.username,
-      roles: user.roles,
-      activeRole,
-    },
-    expiresIn
-  );
+  return generateAccessToken({
+    userId: user.id,
+    username: user.username,
+    roles: user.roles,
+    activeRole,
+  });
+}
+
+export function generateTokenId() {
+  return crypto.randomUUID();
 }

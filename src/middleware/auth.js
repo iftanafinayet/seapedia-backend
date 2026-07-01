@@ -1,5 +1,5 @@
 import { UnauthorizedError } from "../utils/errors.js";
-import { verifyToken } from "../utils/token.js";
+import { verifyAccessToken } from "../utils/token.js";
 import prisma from "../config/prisma.js";
 
 export async function authenticate(req, res, next) {
@@ -10,7 +10,7 @@ export async function authenticate(req, res, next) {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(token);
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -44,7 +44,7 @@ export async function optionalAuth(req, res, next) {
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(token);
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },

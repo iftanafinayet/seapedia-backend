@@ -73,6 +73,7 @@ model User {
   productReviews   ProductReview[]
   deliveries      DeliveryJob[]
   driverEarnings  DriverEarning[]
+  refreshTokens   RefreshToken[]
 }
 
 model Store {
@@ -322,6 +323,19 @@ model ApplicationReview {
   createdAt    DateTime @default(now())
 
   @@index([userId])
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  @@index([userId])
+  @@index([token])
 }
 
 model SiteConfig {

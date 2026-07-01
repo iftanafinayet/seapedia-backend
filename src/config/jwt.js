@@ -2,11 +2,12 @@ import { env } from "./env.js";
 
 export const jwtConfig = {
   secret: env.JWT_SECRET,
+  refreshSecret: env.JWT_REFRESH_SECRET,
   expiresIn: "15m",
-  roleExpiry: {
-    Buyer: "4h",
-    Driver: "2d",
-    Seller: "7d",
-    Admin: "7d",
+  refreshExpiry: {
+    Buyer: "7d",
+    Driver: "14d",
+    Seller: "30d",
+    Admin: "30d",
   },
 };
