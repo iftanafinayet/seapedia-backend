@@ -34,6 +34,3 @@ export async function getOrderById(req, res, next) {
   }
 }
 
-export async function logout(_req, res) {
-  res.json({ success: true, message: "Logged out (token should be discarded by client)" });
-}
