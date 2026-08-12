@@ -11,9 +11,25 @@ import swaggerDoc from "./config/swagger.js";
 
 const app = express();
 
+const isLocalNetworkOrigin = (origin) => {
+  if (!origin) return true;
+  try {
+    const { hostname } = new URL(origin);
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      /^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+      /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+      /^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/.test(hostname)
+    );
+  } catch {
+    return false;
+  }
+};
+
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || env.FRONTEND_URLS.includes(origin)) {
+    if (isLocalNetworkOrigin(origin) || env.FRONTEND_URLS.includes(origin)) {
       cb(null, true);
     } else {
       cb(new Error("Not allowed by CORS"));
